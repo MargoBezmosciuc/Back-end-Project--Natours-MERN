@@ -19,9 +19,18 @@ mongoose
   .then(() => {
     console.log('DB connection successful');
   });
+//.catch((err) => console.log('Error'));
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`App running on port : ${port}`);
+});
+// handle all global promise rejections
+process.on('unhandledRejection', (err) => {
+  console.log(err.name, err.message);
+  console.log('UNHANDLED REJECTIONS! Shutting down');
+  server.close(() => {
+    process.exit(1);
+  });
 });
