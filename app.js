@@ -18,6 +18,7 @@ app.use(express.static(`${__dirname}/public`)); // working for static files. img
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  console.log(req.headers);
   next();
 });
 ///////////////////////////////////////////////3)Routs

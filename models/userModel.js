@@ -55,7 +55,7 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
-//Instance Method
+//Instance Method// Instances of Models are documents.->  We may also define our own custom document instance methods.
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
