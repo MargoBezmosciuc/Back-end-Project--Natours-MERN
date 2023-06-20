@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -23,6 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     //required: [true, 'A User must have a photo'],
   },
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user',
+  },
   // createdAt: { type: Date, default: Date.now(), select: false },
   password: {
     type: String,
@@ -42,6 +48,13 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangeAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false, // no showing this property
+  },
 });
 
 //Encryption
@@ -56,6 +69,19 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangeAt = Date.now() - 1000; // save change at 1 sec in the past after token
+  next();
+});
+
+userSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.find({ active: { $ne: false } }); // filter object
+  next();
+});
+
 //Instance Method// Instances of Models are documents.->  We may also define our own custom document instance methods.
 userSchema.methods.correctPassword = async function (
   candidatePassword,
@@ -74,6 +100,19 @@ userSchema.methods.changedPasswordsAfter = function (JWTTimestamp) {
   }
   //False mean NOT Changed
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  //create a random crypto Token
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  console.log({ resetToken }, this.passwordResetToken);
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; //10 min but have to be written in milliseconds
+
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
