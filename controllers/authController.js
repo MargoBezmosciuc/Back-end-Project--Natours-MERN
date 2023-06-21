@@ -15,6 +15,20 @@ const signToken = (id) => {
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
+
+  /// Send and Define Cookies
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000 // time now + expire in 90 days *24 h*60min*60sec*1000 milliseconds
+    ),
+    // secure: true, // cookies would be send only in https, in encrypted connection
+    httpOnly: true, // cannot be accessed or modified in any way by the browser//receive the cookie, store it, and then send it automatically along with every request.
+  };
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true; // we need secure true only in production environment
+  res.cookie('jwt', token, cookieOptions);
+  user.password = undefined; //remove password from output
+
   res.status(statusCode).json({ status: 'Molodets', token, data: { user } });
 };
 
