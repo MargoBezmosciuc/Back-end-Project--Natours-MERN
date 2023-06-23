@@ -1,8 +1,7 @@
 //const { query } = require('express');
 const Tour = require('../models/tourModels');
-const APIFeatures = require('./../utils/apiFeatures');
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
+// const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
 
 exports.aliasTopTours = (req, res, next) => {
@@ -12,53 +11,14 @@ exports.aliasTopTours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  //Build the Query
-  console.log(req.query);
-
-  //Execute the Query
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
-  //query.sort().select().skip().limit()
-
-  ///Send Response
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: { tours },
-  });
-});
-/// Reading
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('review');
-  //Tour.findONe({_id: req.params.id}) -> same way from above, we can query for that <field></field>
-  if (!tour) {
-    return next(new AppError('No tours found with that ID', 404));
-  }
-  res.status(200).json({
-    status: 'success',
-    data: { tour },
-  });
-});
-
-////Creating
-exports.createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-  res.status(201).json({
-    status: 'success',
-    data: { tour: newTour },
-  });
-});
-
+//CRUD Tour
+exports.getAllTours = factory.getAll(Tour);
+exports.createTour = factory.createOne(Tour);
+exports.getTour = factory.getOne(Tour, { path: 'review' });
 exports.updateTour = factory.updateOne(Tour);
 exports.deleteTour = factory.deleteOne(Tour);
 
-////////////////
+/////////////////////////////////////////////////////////////////////////
 exports.getTourStats = catchAsync(async (req, res, next) => {
   const stats = await Tour.aggregate([
     { $match: { ratingAverage: { $gte: 4.5 } } },

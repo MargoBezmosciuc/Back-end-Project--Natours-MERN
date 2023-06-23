@@ -1,8 +1,8 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
-const authController = require('./../controllers/authController');
+const authController = require('../controllers/authController');
 // const reviewController = require('./../controllers/reviewController');
-const reviewRouter = require('./../routes/reviewRoutes');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
 
@@ -10,15 +10,6 @@ const router = express.Router();
 
 //POST / tour/154544/review
 //GET   /tour/154544/review
-//GET   /tour/154544/review/4545454
-/* 
-router
-  .route('/:tourId/review')
-  .post(
-    authController.protect,
-    authController.restrictTo('user'),
-    reviewController.createNewReview
-  ); */
 
 router.use('/:tourId/review', reviewRouter); // this specific route here,we want to use the review router instead.
 
