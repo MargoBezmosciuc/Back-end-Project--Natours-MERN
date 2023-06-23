@@ -1,8 +1,8 @@
 const express = require('express');
-const reviewController = require('./../controllers/reviewController.js');
-const authController = require('./../controllers/authController');
+const reviewController = require('../controllers/reviewController');
+const authController = require('../controllers/authController');
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true }); //mergeParams:true ->
 
 router
   .route('/')
@@ -10,13 +10,12 @@ router
   .post(
     authController.protect,
     authController.restrictTo('user'),
+    reviewController.seTourUserIds,
     reviewController.createNewReview
   );
-
-// router.post('/createNewReview', reviewController.createNewReview);
-// router.get('/getAllReviews', reviewController.getAllReviews);
-/// till here from udemy
-router.patch('/updateReview', reviewController.updateReview);
-router.delete('/deleteReview', reviewController.deleteReview);
+router
+  .route('/:id')
+  .patch(reviewController.updateReview)
+  .delete(reviewController.deleteReview);
 
 module.exports = router;
