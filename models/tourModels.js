@@ -77,7 +77,8 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    // guides:Array -> for Embedding
+    // guides:Array -> for Embedding Data
+    // create Reference Data
     guides: [{ type: mongoose.Schema.ObjectId, reference: 'User' }],
   },
   {
@@ -120,6 +121,14 @@ tourSchema.post('save', function (doc, next) {
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
+  next();
+});
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangeAt',
+  });
   next();
 });
 
