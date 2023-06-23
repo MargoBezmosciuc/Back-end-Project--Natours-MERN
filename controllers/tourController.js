@@ -34,7 +34,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 /// Reading
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate('review');
   //Tour.findONe({_id: req.params.id}) -> same way from above, we can query for that <field></field>
   if (!tour) {
     return next(new AppError('No tours found with that ID', 404));

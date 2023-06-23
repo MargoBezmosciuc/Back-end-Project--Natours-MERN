@@ -89,6 +89,13 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
+//virtually Population with Reviews in Tour
+
+tourSchema.virtual('review', {
+  ref: 'Review',
+  foreignField: 'tour', // how you call it in reviewModal
+  localField: '_id', // How you call it in this Model
+});
 
 ///Document middleware : runs before save () and create ()
 tourSchema.pre('save', function (next) {
