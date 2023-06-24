@@ -57,6 +57,8 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+/*  Disable when you want to import Data because we have encrypted Passwords 
+---------------------From here to disable ---------------------------------- */
 //Encryption
 userSchema.pre('save', async function (next) {
   //Only run this function if passwords was actually modify
@@ -75,13 +77,13 @@ userSchema.pre('save', function (next) {
   this.passwordChangeAt = Date.now() - 1000; // save change at 1 sec in the past after token
   next();
 });
+///-----------------till here to disable in case of import-----------------------
 
 userSchema.pre(/^find/, function (next) {
   // this points to the current query
   this.find({ active: { $ne: false } }); // filter object
   next();
 });
-
 //Instance Method// Instances of Models are documents.->  We may also define our own custom document instance methods.
 userSchema.methods.correctPassword = async function (
   candidatePassword,

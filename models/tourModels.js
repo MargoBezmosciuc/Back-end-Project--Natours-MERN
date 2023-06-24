@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-const validator = require('validator');
-const User = require('./userModel');
+// const validator = require('validator');
+// const User = require('./userModel');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -41,7 +41,7 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       validate: {
         validator: function (val) {
-          // this only points to currect doc
+          // this only points to current doc
           return val < this.price;
         },
         message: 'Discount price({VALUE}) should be below the regular price',
@@ -79,13 +79,23 @@ const tourSchema = new mongoose.Schema(
     ],
     // guides:Array -> for Embedding Data
     // create Reference Data
-    guides: [{ type: mongoose.Schema.ObjectId, reference: 'User' }],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+
+// tourSchema.index({ price: 1 }); //1 sorting price in ascending order
+tourSchema.index({ price: 1, ratingsAverage: -1 }); //-1 sorting descending
+tourSchema.index({ slug: 1 });
+
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
